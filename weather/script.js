@@ -17,7 +17,7 @@ function fetchWeatherData(lat, lon) {
             cacheWeatherData('currentWeather', data); // 快取當前天氣資料
 
             const date = new Date(data.dt * 1000);
-            document.getElementById('UpdateTime').innerHTML = `更新時間: ${date.getFullYear()}-${new String(date.getMonth() + 1).padStart(2,'0')}-${new String(date.getDate()).padStart(2,'0')} ${new String(date.getHours()).padStart(2,'0')}:${new String(date.getMinutes()).padStart(2,'0')}`; // 更新時間
+            document.getElementById('UpdateTime').innerHTML = `更新時間:<br>${date.getFullYear()}-${new String(date.getMonth() + 1).padStart(2,'0')}-${new String(date.getDate()).padStart(2,'0')} ${new String(date.getHours()).padStart(2,'0')}:${new String(date.getMinutes()).padStart(2,'0')}:${new String(date.getSeconds()).padStart(2,'0')}`;
         });
 
     // 獲取未來每3小時預報
