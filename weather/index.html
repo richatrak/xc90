@@ -5,24 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>天氣預報</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> <!-- 引入 Data Labels 插件 -->
 </head>
 <body>
     <div class="container">
-        <div class="current-weather">
-            <h1>目前天氣</h1>
-            <div class="weather-icon">
-                <img id="current-icon" src="" alt="天氣圖示">
+        <div class="top-row">
+            <div class="current-weather">
+                <h1>目前天氣</h1>
+                <div class="weather-icon">
+                    <img id="current-icon" src="" alt="天氣圖示">
+                </div>
+                <div class="temperature">
+                    <span id="current-temp"></span>°C
+                </div>
+                <div class="description" id="current-description"></div>
             </div>
-            <div class="temperature">
-                <span id="current-temp"></span>°C
+            <div class="weekly-forecast">
+                <h2>一周預報</h2>
+                <div class="forecast" id="forecast-container">
+                    <!-- 這裡將使用 JavaScript 動態生成一周的預報 -->
+                </div>
             </div>
-            <div class="description" id="current-description"></div>
         </div>
-        <div class="weekly-forecast">
-            <h2>一周預報</h2>
-            <div class="forecast" id="forecast-container">
-                <!-- 這裡將使用 JavaScript 動態生成一周的預報 -->
-            </div>
+        <div class="hourly-forecast">
+            <h2>未來12小時天氣預報</h2>
+            <canvas id="hourlyChart"></canvas>
         </div>
     </div>
 
