@@ -14,21 +14,22 @@
     <div class="container">
         <div class="top-row">
             <div class="current-weather">
-
-                <h1>目前天氣</h1>
+                <h1 id="current-city" class="emptyTransition"></h1>
                 <div class="weather-icon">
                     <img id="current-icon" src="" alt="天氣圖示">
                 </div>
                 <div class="temperature">
-                    <span id="current-temp"></span>°C
+                    <span id="current-temp" class="emptyTransition"></span>°C
                 </div>
-                <div class="description" id="current-description"></div>
-                <div id="UpdateTime"></div>
+                <div class="description emptyTransition" id="current-description"></div>
+
+                <div id="update-time" class="emptyTransition"></div>
             </div>
             <div class="weekly-forecast">
-
+                <div class="description emptyTransition" id="current-detail"></div>
+                <hr>
                 <h2>一周預報</h2>
-                <div class="forecast" id="forecast-container">
+                <div class="forecast emptyTransition" id="forecast-container">
                     <!-- 這裡將使用 JavaScript 動態生成一周的預報 -->
                 </div>
             </div>

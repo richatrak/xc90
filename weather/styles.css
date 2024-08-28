@@ -88,9 +88,30 @@ body {
     max-height: 35vh;
 }
 
-#UpdateTime {
+
+#update-time {
     color: #ecf0f1; /* 淺色字體 */
     margin-top: 50px;
+}
+
+img[src=""] {
+    opacity: 0;
+    transition: 3s opacity ease-in-out;
+}
+
+img[src] {
+    opacity: 1;
+    transition: 3s opacity ease-in-out;
+}
+
+.emptyTransition:empty {
+    opacity: 0;
+    transition: 3s opacity ease-in-out;
+}
+
+.emptyTransition{
+    opacity: 1;
+    transition: 3s opacity ease-in-out;
 }
 
 @media (max-width: 768px) {

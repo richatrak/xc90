@@ -6,8 +6,22 @@ let hourlyChart;
 
 // 定義獲取天氣資訊的函數
 function fetchWeatherData(lat, lon) {
-    const currentWeatherURL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`;
-    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`;
+    const currentWeatherURL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=${navigator.language.replace('-','_')}&appid=${apiKey}`;
+    const forecastURL = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=metric&lang=${navigator.language.replace('-','_')}&appid=${apiKey}`;
+    const cityURL = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${apiKey}`;
+
+    fetch (cityURL)
+        .then(response => response.json())
+        .then(data => {
+            const city = navigator.languages.reduce( ( city , lang) => {
+                if (! city ) {
+                    return data[0].local_names[lang] ?? data[0].local_names[lang.replace('-','_')];
+                }
+                return city;
+            }, null) ?? data[0].name ;
+
+            document.getElementById('current-city').textContent = city
+        });
 
     // 獲取當前天氣
     fetch(currentWeatherURL)
@@ -17,7 +31,7 @@ function fetchWeatherData(lat, lon) {
             cacheWeatherData('currentWeather', data); // 快取當前天氣資料
 
             const date = new Date(data.dt * 1000);
-            document.getElementById('UpdateTime').innerHTML = `更新時間:<br>${date.getFullYear()}-${new String(date.getMonth() + 1).padStart(2,'0')}-${new String(date.getDate()).padStart(2,'0')} ${new String(date.getHours()).padStart(2,'0')}:${new String(date.getMinutes()).padStart(2,'0')}:${new String(date.getSeconds()).padStart(2,'0')}`;
+            document.getElementById('update-time').innerHTML = `更新時間:<br>${date.getFullYear()}-${new String(date.getMonth() + 1).padStart(2,'0')}-${new String(date.getDate()).padStart(2,'0')} ${new String(date.getHours()).padStart(2,'0')}:${new String(date.getMinutes()).padStart(2,'0')}:${new String(date.getSeconds()).padStart(2,'0')}`;
         });
 
     // 獲取未來每3小時預報
@@ -35,6 +49,11 @@ function updateCurrentWeather(data) {
     document.getElementById('current-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
     document.getElementById('current-temp').textContent = Math.round(data.main.temp);
     document.getElementById('current-description').textContent = data.weather[0].description;
+    document.getElementById('current-detail').innerHTML = `
+        高溫: ${Math.round(data.main.temp_max)}°C，低溫: ${Math.round(data.main.temp_min)}°C，體感溫度: ${Math.round(data.main.feels_like)}°C<br>
+        濕度: ${data.main.humidity}%，風速: ${data.wind.speed} m/s，氣壓: ${data.main.pressure} hPa，能見度: ${data.visibility / 1000} km<br>
+        日出: ${new String(new Date(data.sys.sunrise * 1000).getHours()).padStart(2,'0')}:${new String(new Date(data.sys.sunrise * 1000).getMinutes()).padStart(2,'0')}，日落: ${new String(new Date(data.sys.sunset * 1000).getHours()).padStart(2,'0')}:${new String(new Date(data.sys.sunset * 1000).getMinutes()).padStart(2,'0')}
+    `;
 }
 
 // 使用 Chart.js 更新每小時預報的混合圖表（折線圖+長條圖）
@@ -159,10 +178,14 @@ function updateWeeklyForecast(data) {
         const date = new Date(dayData.dt * 1000);
         const day = date.toLocaleDateString('zh-TW', { weekday: 'short', month: 'numeric', day: 'numeric' });
 
+        const dateStr = dayData.dt_txt.split(' ')[0];
+        const maxTemp = Math.round(data.list.filter(item => item.dt_txt.includes(dateStr)).reduce((max, item) => item.main.temp_max > max ? item.main.temp_max : max, -100));
+        const minTemp = Math.round(data.list.filter(item => item.dt_txt.includes(dateStr)).reduce((min, item) => item.main.temp_min < min ? item.main.temp_min : min, 100));
+
         dayElement.innerHTML = `
             <div class="day">${day}</div>
             <img src="https://openweathermap.org/img/wn/${dayData.weather[0].icon}@2x.png" alt="天氣圖示">
-            <div class="day-temp">${Math.round(dayData.main.temp)}°C</div>
+            <div class="day-temp">${Math.round(minTemp)} - ${Math.round(maxTemp)}°C</div>
             <div class="day-desc">${dayData.weather[0].description}</div>
         `;
         forecastContainer.appendChild(dayElement);
@@ -191,60 +214,74 @@ function loadCachedWeatherData(type) {
     return null;
 }
 
-// 使用 Geolocation API 獲取使用者位置
-if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-        position => {
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
 
-            // 嘗試載入快取的資料
-            const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
-            const cachedForecast = loadCachedWeatherData('forecast');
+function reloadAllData() {
+    // 使用 Geolocation API 獲取使用者位置
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
 
-            if (cachedCurrentWeather) {
-                updateCurrentWeather(cachedCurrentWeather);
+                // 嘗試載入快取的資料
+                const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
+                const cachedForecast = loadCachedWeatherData('forecast');
+
+                if (cachedCurrentWeather) {
+                    updateCurrentWeather(cachedCurrentWeather);
+                }
+                if (cachedForecast) {
+                    updateHourlyForecastChart(cachedForecast);
+                    updateWeeklyForecast(cachedForecast);
+                }
+
+                // 獲取並更新最新資料
+                fetchWeatherData(lat, lon);
+            },
+            error => {
+                console.error('無法獲取地理位置', error);
+                // 使用快取資料或預設位置
+                const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
+                const cachedForecast = loadCachedWeatherData('forecast');
+
+                if (cachedCurrentWeather) {
+                    updateCurrentWeather(cachedCurrentWeather);
+                } else {
+                    fetchWeatherData(25.0330, 121.5654); // 預設台北市位置
+                }
+
+                if (cachedForecast) {
+                    updateHourlyForecastChart(cachedForecast);
+                    updateWeeklyForecast(cachedForecast);
+                }
             }
-            if (cachedForecast) {
-                updateHourlyForecastChart(cachedForecast);
-                updateWeeklyForecast(cachedForecast);
-            }
-
-            // 獲取並更新最新資料
-            fetchWeatherData(lat, lon);
-        },
-        error => {
-            console.error('無法獲取地理位置', error);
-            // 使用快取資料或預設位置
-            const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
-            const cachedForecast = loadCachedWeatherData('forecast');
-
-            if (cachedCurrentWeather) {
-                updateCurrentWeather(cachedCurrentWeather);
-            } else {
-                fetchWeatherData(25.0330, 121.5654); // 預設台北市位置
-            }
-
-            if (cachedForecast) {
-                updateHourlyForecastChart(cachedForecast);
-                updateWeeklyForecast(cachedForecast);
-            }
-        }
-    );
-} else {
-    console.error('Geolocation 不支援於這個瀏覽器');
-    // 使用快取資料或預設位置
-    const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
-    const cachedForecast = loadCachedWeatherData('forecast');
-
-    if (cachedCurrentWeather) {
-        updateCurrentWeather(cachedCurrentWeather);
+        );
     } else {
-        fetchWeatherData(25.0330, 121.5654); // 預設台北市位置
-    }
+        console.error('Geolocation 不支援於這個瀏覽器');
+        // 使用快取資料或預設位置
+        const cachedCurrentWeather = loadCachedWeatherData('currentWeather');
+        const cachedForecast = loadCachedWeatherData('forecast');
 
-    if (cachedForecast) {
-        updateHourlyForecastChart(cachedForecast);
-        updateWeeklyForecast(cachedForecast);
+        if (cachedCurrentWeather) {
+            updateCurrentWeather(cachedCurrentWeather);
+        } else {
+            fetchWeatherData(25.0330, 121.5654); // 預設台北市位置
+        }
+
+        if (cachedForecast) {
+            updateHourlyForecastChart(cachedForecast);
+            updateWeeklyForecast(cachedForecast);
+        }
     }
 }
+
+reloadAllData(); // 載入所有資料
+
+/*
+setInterval(() => {
+    if ( document.visibility !== 'visible' ) {
+        return;
+    }
+    reloadAllData(); // 每20分鐘重新載入資料
+}, 20 * 60 * 1000);
+*/
