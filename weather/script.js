@@ -32,7 +32,7 @@ function fetchWeatherData(lat, lon) {
 
 // 更新目前天氣的函數
 function updateCurrentWeather(data) {
-    document.getElementById('current-icon').src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+    document.getElementById('current-icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
     document.getElementById('current-temp').textContent = Math.round(data.main.temp);
     document.getElementById('current-description').textContent = data.weather[0].description;
 }
@@ -161,7 +161,7 @@ function updateWeeklyForecast(data) {
 
         dayElement.innerHTML = `
             <div class="day">${day}</div>
-            <img src="http://openweathermap.org/img/wn/${dayData.weather[0].icon}@2x.png" alt="天氣圖示">
+            <img src="https://openweathermap.org/img/wn/${dayData.weather[0].icon}@2x.png" alt="天氣圖示">
             <div class="day-temp">${Math.round(dayData.main.temp)}°C</div>
             <div class="day-desc">${dayData.weather[0].description}</div>
         `;
