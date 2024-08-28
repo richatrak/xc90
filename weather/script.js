@@ -15,6 +15,9 @@ function fetchWeatherData(lat, lon) {
         .then(data => {
             updateCurrentWeather(data);
             cacheWeatherData('currentWeather', data); // 快取當前天氣資料
+
+            const date = new Date(data.dt * 1000);
+            document.getElementById('UpdateTime').innerHTML = `更新時間: ${date.getFullYear()}-${new String(date.getMonth() + 1).padStart(2,'0')}-${new String(date.getDate()).padStart(2,'0')} ${new String(date.getHours()).padStart(2,'0')}:${new String(date.getMinutes()).padStart(2,'0')}`; // 更新時間
         });
 
     // 獲取未來每3小時預報
@@ -50,6 +53,9 @@ function updateHourlyForecastChart(data) {
         pops.push(Math.round(hourData.pop * 100));
     });
 
+    const tempsMax = Math.max(...temps) + 2 ;
+    const tempsMin = Math.min(...temps) - 2 ;
+
 
     const ctx = document.getElementById('hourlyChart').getContext('2d');
     if (hourlyChart) {
@@ -67,13 +73,15 @@ function updateHourlyForecastChart(data) {
                     type: 'line', // 折線圖
                     borderColor: '#f39c12', // 橙色折線
                     backgroundColor: 'rgba(243, 156, 18, 0.2)', // 淡橙色背景
-                    yAxisID: 'y-temp',
+                    yAxisID: 'y_temp',
                     tension: 0.4, // 平滑折線
                     fill: true, // 填充下方區域
                     datalabels: {
                         align: 'top',
                         anchor: 'end',
                         color: '#f39c12', // 白色文字
+                        backgroundColor: '#333', // 藍色背景
+                        borderRadius: 4, // 圓角
                         formatter: (value) => `${value}°C`
                     }
                 },
@@ -82,14 +90,14 @@ function updateHourlyForecastChart(data) {
                     data: pops,
                     type: 'bar', // 長條圖
                     backgroundColor: '#3498db', // 藍色長條
-                    yAxisID: 'y-pop',
+                    yAxisID: 'y_pop',
                     datalabels: {
                         align: 'bottom', // 與長條頂端對齊
                         anchor: 'start', // 將文字顯示在條形圖頂部
                         offset: -20, // 向上偏移文字位置
                         color: '#ffffff', // 白色文字
                         formatter: (value) => `${value}%`
-                    }
+                    },
                 }
             ]
         },
@@ -103,38 +111,24 @@ function updateHourlyForecastChart(data) {
                         color: '#ffffff', // X軸字體顏色
                     }
                 },
-                y: {
-                    yAxes: [
-                        {
-                            id: 'y-temp',
-                            type: 'linear',
-                            position: 'left',
-                            ticks: {
-                                display: false, // 隱藏Y軸刻度
-                                min:0,
-                                max: 45,
-                            },
-                            grid: {
-                                color: '#34495e', // 網格線顏色
-                            },
-                        },
-                        {
-                            id: 'y-pop',
-                            type: 'bar',
-                            position: 'right',
-                            min:0,
-                            max:100,
-                            ticks: {
-                                display: false, // 隱藏Y軸刻度
-
-                            },
-                            grid: {
-                                drawOnChartArea: false, // 僅左側Y軸顯示網格線
-                            }
-                        }
-                    ]
+                y_temp: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    max: tempsMax,
+                    min: tempsMin,
+                    display: false,
+                },
+                y_pop: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    max: 100,
+                    min:0,
+                    display: false,
                 }
             },
+
             plugins: {
                 legend: {
                     labels: {
