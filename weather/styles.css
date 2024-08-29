@@ -26,7 +26,7 @@ body {
     border-radius: 10px;
     flex: 0.8; /* 減少寬度 */
     text-align: center;
-    height: 40dvh;
+    height: 40vh;
 }
 
 .weather-icon img {
@@ -47,7 +47,7 @@ body {
     flex: 2.2; /* 增加寬度 */
     overflow-y: auto;
     text-align: center;
-    height: 40dvh;
+    height: 40vh;
 }
 
 .forecast {
@@ -74,7 +74,7 @@ body {
     border-radius: 10px;
     margin-top: 20px;
     text-align: center;
-    height: 40dvh;
+    height: 40vh;
     overflow: hidden;
 }
 
