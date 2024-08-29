@@ -171,7 +171,7 @@ function updateWeeklyForecast(data) {
     // 取每一天中間的預報來表示一整天的預報
     const dailyData = data.list.filter(item => item.dt_txt.includes("12:00:00"));
 
-    dailyData.forEach(dayData => {
+    dailyData.slice(0,4).forEach(dayData => {
         const dayElement = document.createElement('div');
         dayElement.classList.add('forecast-day');
 
