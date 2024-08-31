@@ -1,0 +1,66 @@
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #1a1a1a; /* 深色背景適合車內使用 */
+}
+
+.dashboard {
+  display: flex;
+  gap: 20px;
+}
+
+.card {
+  width: 220px;
+  height: 180px;
+  background-color: #333333; /* 卡片背景深色化 */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease-in-out;
+  text-align: center;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.weather-card {
+  background-color: #007bff; /* 天氣卡片背景為藍色 */
+}
+
+.parking-card {
+  background-color: #28a745; /* 停車卡片背景為綠色 */
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-content i {
+  font-size: 48px;
+  color: #ffffff; /* 圖示顏色為白色 */
+  margin-bottom: 10px;
+}
+
+.card-content h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #ffffff; /* 標題顏色為白色 */
+}
+
+.card-content p {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #cccccc; /* 副標顏色為淡灰色 */
+}
+
+.card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
